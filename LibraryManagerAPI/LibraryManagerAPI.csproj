@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>b8eac273-9fcb-4b9f-8050-5106e82edb59</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	  <DocumentationFile>bin\Debug\net8.0\LibraryManagerAPI.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,15 +15,15 @@
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.33" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8" />
 	  <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
+	  <PackageReference Include="Scrutor" Version="5.0.2" />
 	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
 	  <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.7.3" />
 	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.7.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
-    <Folder Include="Config\" />
-    <Folder Include="Repository\" />
+    <Folder Include="Infrastructure\Persistance\Migrations\" />
+    <Folder Include="Tests\" />
   </ItemGroup>
 
 </Project>
