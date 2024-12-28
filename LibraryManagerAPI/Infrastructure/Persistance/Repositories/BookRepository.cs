@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using LibraryManagerAPI.Domain.Entities;
-using LibraryManagerAPI.Domain.ValueObjects;
+using LibraryManagerAPI.Domain.ValueObjects.Input;
 using LibraryManagerAPI.Infrastructure.Context;
 using LibraryManagerAPI.Presentation.Interfaces.Repository.Book;
 using Microsoft.EntityFrameworkCore;

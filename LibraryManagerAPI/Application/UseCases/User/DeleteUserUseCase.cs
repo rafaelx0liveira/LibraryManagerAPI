@@ -1,20 +1,19 @@
 ﻿using LibraryManagerAPI.Application.Commom.Validation;
-using LibraryManagerAPI.Domain.ValueObjects.Input;
 using LibraryManagerAPI.Presentation.Interfaces.Repository.User;
 using LibraryManagerAPI.Presentation.Interfaces.UseCases.User;
 
 namespace LibraryManagerAPI.Application.UseCases.User
 {
-    public class RegisterUserUseCase (IUserRepository userRepository) 
-        : IRegisterUserUseCase
+    public class DeleteUserUseCase(IUserRepository userRepository)
+        : IDeleteUserUseCase
     {
         private readonly IUserRepository _userRepository = userRepository;
 
-        public async Task<UserVO> RegisterUser(UserVO userVO)
+        public async Task<bool> DeleteUser(string email)
         {
-            ValidatorService.Validate(userVO);
+            ValidatorService.Validate(email);
 
-            return await _userRepository.RegisterUser(userVO);
+            return await _userRepository.DeleteUser(email);
         }
     }
 }

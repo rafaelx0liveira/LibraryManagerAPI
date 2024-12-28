@@ -5,6 +5,7 @@ using LibraryManagerAPI.Infrastructure.Persistance.Config;
 using LibraryManagerAPI.Infrastructure.Persistance.Repositories;
 using LibraryManagerAPI.Presentation.Filters;
 using LibraryManagerAPI.Presentation.Interfaces.Repository.Book;
+using LibraryManagerAPI.Presentation.Interfaces.Repository.Loan;
 using LibraryManagerAPI.Presentation.Interfaces.Repository.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -34,13 +35,17 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Registering the repository
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 
 
 // Registering all use cases dynamically using reflection 
 builder.Services.Scan(scan => scan
     .FromAssemblyOf<RegisterBooksUseCase>()
-    .AddClasses(classes => classes.InNamespaces("LibraryManagerAPI.Application.UseCases.Book"))
-    .AddClasses(classes => classes.InNamespaces("LibraryManagerAPI.Application.UseCases.User"))
+    .AddClasses(classes => classes.InNamespaces(
+        "LibraryManagerAPI.Application.UseCases.Book",
+        "LibraryManagerAPI.Application.UseCases.User",
+        "LibraryManagerAPI.Application.UseCases.Loan"
+        ))
     .AsImplementedInterfaces()
     .WithScopedLifetime()
 );

@@ -1,8 +1,8 @@
 ﻿using LibraryManagerAPI.Application.Commom.Validation;
-using LibraryManagerAPI.Domain.ValueObjects;
-using LibraryManagerAPI.Domain.Exceptions;
+using LibraryManagerAPI.Domain.Exceptions.BookExceptions;
 using LibraryManagerAPI.Presentation.Interfaces.Repository.Book;
 using LibraryManagerAPI.Presentation.Interfaces.UseCases.Book;
+using LibraryManagerAPI.Domain.ValueObjects.Input;
 
 namespace LibraryManagerAPI.Application.UseCases.Book
 {
@@ -20,7 +20,7 @@ namespace LibraryManagerAPI.Application.UseCases.Book
             if (books == null || !books.Any())
             {
                 throw new BookNotAvailableException($"The book '{title}' is not available.");
-            }
+            } 
 
             return books;
         }

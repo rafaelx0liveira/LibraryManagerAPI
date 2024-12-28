@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace LibraryManagerAPI.Domain.ValueObjects
+namespace LibraryManagerAPI.Domain.ValueObjects.Input
 {
     public class UserVO
     {
