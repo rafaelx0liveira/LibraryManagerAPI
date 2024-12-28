@@ -1,7 +1,7 @@
 ﻿using LibraryManagerAPI.Domain.Entities.Utils;
 using System.ComponentModel.DataAnnotations;
 
-namespace LibraryManagerAPI.Domain.ValueObjects
+namespace LibraryManagerAPI.Domain.ValueObjects.Input
 {
     public class BookingVO
     {

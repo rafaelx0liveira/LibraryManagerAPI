@@ -1,4 +1,4 @@
-﻿namespace LibraryManagerAPI.Domain.Exceptions
+﻿namespace LibraryManagerAPI.Domain.Exceptions.BookExceptions
 {
     public class BookNotAvailableException : Exception
     {

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using LibraryManagerAPI.Domain.Entities;
-using LibraryManagerAPI.Domain.ValueObjects;
+using LibraryManagerAPI.Domain.Exceptions.UserExceptions;
+using LibraryManagerAPI.Domain.ValueObjects.Input;
 using LibraryManagerAPI.Infrastructure.Context;
 using LibraryManagerAPI.Presentation.Interfaces.Repository.User;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagerAPI.Infrastructure.Persistance.Repositories
 {
@@ -20,6 +22,22 @@ namespace LibraryManagerAPI.Infrastructure.Persistance.Repositories
             await _context.SaveChangesAsync();
 
             return _mapper.Map<UserVO>(user);
+        }
+
+        public async Task<bool> DeleteUser(string email)
+        {
+            User user = await _context.Users.Where(x => x.Email == email).FirstOrDefaultAsync() ?? new User();
+
+            if(user.Email == null)
+            {
+                throw new UserNotFoundException($"User with email '{email}' was not found.");
+            }
+
+            _context.Users.Remove(user);
+
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

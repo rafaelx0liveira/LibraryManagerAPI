@@ -1,4 +1,4 @@
-﻿using LibraryManagerAPI.Domain.Exceptions;
+﻿using LibraryManagerAPI.Domain.Exceptions.ValidationFieldsExceptions;
 using System.ComponentModel.DataAnnotations;
 
 namespace LibraryManagerAPI.Application.Commom.Validation
@@ -21,7 +21,7 @@ namespace LibraryManagerAPI.Application.Commom.Validation
                     errorMessage.Add(validationResult.ErrorMessage);
                 }
 
-                throw new CustomValidationException(errorMessage);
+                throw new CustomValidationFieldsException(errorMessage);
             }
         }
     }

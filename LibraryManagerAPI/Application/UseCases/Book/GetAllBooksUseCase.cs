@@ -1,4 +1,4 @@
-﻿using LibraryManagerAPI.Domain.ValueObjects;
+﻿using LibraryManagerAPI.Domain.ValueObjects.Input;
 using LibraryManagerAPI.Presentation.Interfaces.Repository.Book;
 using LibraryManagerAPI.Presentation.Interfaces.UseCases.Book;
 

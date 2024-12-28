@@ -1,5 +1,6 @@
-﻿using LibraryManagerAPI.Domain.Exceptions;
-using LibraryManagerAPI.Domain.ValueObjects;
+﻿using LibraryManagerAPI.Domain.Exceptions.BookExceptions;
+using LibraryManagerAPI.Domain.Exceptions.ValidationFieldsExceptions;
+using LibraryManagerAPI.Domain.ValueObjects.Input;
 using LibraryManagerAPI.Presentation.Interfaces.UseCases.Book;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,7 +39,7 @@ namespace LibraryManagerAPI.Presentation.Controllers
         /// <response code="400">If the request is invalid</response>
         /// <response code="500">If an error occurs</response>
         [HttpPost]
-        [Route("registerBooks")]
+        [Route("register")]
         public async Task<IActionResult> RegisterBooks([FromBody] IEnumerable<BookVO> bookVO)
         {
             try
@@ -46,7 +47,7 @@ namespace LibraryManagerAPI.Presentation.Controllers
                 var result = await _registerBookUseCase.RegisterBooks(bookVO);
                 return Ok(result);
             }
-            catch (CustomValidationException ex)
+            catch (CustomValidationFieldsException ex)
             {
                 return BadRequest(new {
                     Message = "Validation failed",
@@ -61,7 +62,7 @@ namespace LibraryManagerAPI.Presentation.Controllers
         /// <response code="200">Returns the list of books</response>
         /// <response code="500">If an error occurs</response>
         [HttpGet]
-        [Route("getAllBooks")]
+        [Route("getAll")]
         public async Task<IActionResult> GetAllBooks()
         {
             var result = await _getAllBooksUseCase.GetAllBooks();
@@ -75,7 +76,7 @@ namespace LibraryManagerAPI.Presentation.Controllers
         /// <response code="200">Returns book</response>
         /// <response code="500">If an error occurs</response>
         [HttpGet]
-        [Route("getBookByTitle")]
+        [Route("title")]
         public async Task<IActionResult> GetBookByTitle([FromQuery] string title)
         {
             try
@@ -83,7 +84,7 @@ namespace LibraryManagerAPI.Presentation.Controllers
                 var result = await _getBookByTitleUseCase.GetBookByTitle(title);
                 return Ok(result);
             }
-            catch (CustomValidationException ex)
+            catch (CustomValidationFieldsException ex)
             {
                 // Return the validation error (500)
                 return BadRequest(new
@@ -109,7 +110,7 @@ namespace LibraryManagerAPI.Presentation.Controllers
         /// <response code="200">Returns author's books</response>
         /// <response code="500">If an error occurs</response>
         [HttpGet]
-        [Route("getBookByAuthor")]
+        [Route("author")]
         public async Task<IActionResult> GetBookByAuthor([FromQuery] string author)
         {
             try
@@ -118,7 +119,7 @@ namespace LibraryManagerAPI.Presentation.Controllers
 
                 return Ok(result);
             }
-            catch (CustomValidationException ex)
+            catch (CustomValidationFieldsException ex)
             {
                 // Return the validation error (500)
                 return BadRequest(new
@@ -144,7 +145,7 @@ namespace LibraryManagerAPI.Presentation.Controllers
         /// <response code="200">Return a book</response>
         /// <response code="500">If an error occurs</response>
         [HttpGet]
-        [Route("getBookByISBN")]
+        [Route("ISBN")]
         public async Task<IActionResult> GetBookByISBN([FromQuery] string isbn)
         {
             var result = await _getBookByISBNUseCase.GetBookByISBN(isbn);
@@ -174,7 +175,7 @@ namespace LibraryManagerAPI.Presentation.Controllers
         /// <response code="200">Quantity updated</response>
         /// <response code="500">If an error occurs</response>
         [HttpPatch]
-        [Route("updateBookQuantity")]
+        [Route("updateQuantity")]
         public async Task<IActionResult> UpdateBookQuantity([FromBody]UpdateBookQuantityVO updateBookQuantityVO)
         {
             var result = await _updateBookQuantityUseCase.UpdateBookQuantity(updateBookQuantityVO);

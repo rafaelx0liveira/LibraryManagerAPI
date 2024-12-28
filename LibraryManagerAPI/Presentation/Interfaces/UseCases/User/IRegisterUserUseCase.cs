@@ -1,4 +1,4 @@
-﻿using LibraryManagerAPI.Domain.ValueObjects;
+﻿using LibraryManagerAPI.Domain.ValueObjects.Input;
 
 namespace LibraryManagerAPI.Presentation.Interfaces.UseCases.User
 {
