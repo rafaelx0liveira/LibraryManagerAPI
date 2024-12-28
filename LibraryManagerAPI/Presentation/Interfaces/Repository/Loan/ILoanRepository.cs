@@ -6,5 +6,6 @@ namespace LibraryManagerAPI.Presentation.Interfaces.Repository.Loan
     public interface ILoanRepository
     {
         Task<LoanResultVO> RegisterLoan(LoanVO loan);
+        Task<IEnumerable<LoanFromAUserResultVO>> GetLoanFromAUser(string email);
     }
 }

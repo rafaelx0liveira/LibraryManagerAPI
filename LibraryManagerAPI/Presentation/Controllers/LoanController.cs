@@ -1,4 +1,6 @@
-﻿using LibraryManagerAPI.Domain.Exceptions.ValidationFieldsExceptions;
+﻿using LibraryManagerAPI.Domain.Exceptions.LoanExceptions;
+using LibraryManagerAPI.Domain.Exceptions.UserExceptions;
+using LibraryManagerAPI.Domain.Exceptions.ValidationFieldsExceptions;
 using LibraryManagerAPI.Domain.ValueObjects.Input;
 using LibraryManagerAPI.Presentation.Interfaces.UseCases.Loan;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +13,12 @@ namespace LibraryManagerAPI.Presentation.Controllers
     [ApiController]
     [Route("api/v1/[controller]")]
     public class LoanController (
-        IRegisterLoanUseCase _registerLoanUseCase
+        IRegisterLoanUseCase _registerLoanUseCase,
+        IGetLoanFromAUserUseCase _getLoanFromAUserUseCase
         ) : ControllerBase
     {
         private readonly IRegisterLoanUseCase _registerLoanUseCase = _registerLoanUseCase;
+        private readonly IGetLoanFromAUserUseCase _getLoanFromAUserUseCase = _getLoanFromAUserUseCase;
 
         /// <summary>
         /// Register a Loan
@@ -38,6 +42,46 @@ namespace LibraryManagerAPI.Presentation.Controllers
                 {
                     Message = "Validation failed",
                     ex.Errors
+                });
+            }
+            catch (UserNotFoundException ex)
+            {
+                return NotFound(new
+                {
+                    ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get a Loan from a user
+        /// </summary>
+        /// <param name="email">Email for loan inquiry</param>
+        /// <response code="200">Returns the loans from a user</response>
+        /// <response code="400">If the request is invalid</response>
+        /// <response code="500">If an error occurs</response>
+        [HttpGet]
+        [Route("loans/by-user")]
+        public async Task<IActionResult> GetLoanFromAUser([FromQuery] string email)
+        {
+            try
+            {
+                var result = await _getLoanFromAUserUseCase.GetLoanFromAUser(email);
+                return Ok(result);
+            }
+            catch (CustomValidationFieldsException ex)
+            {
+                return BadRequest(new
+                {
+                    Message = "Validation failed",
+                    ex.Errors
+                });
+            }
+            catch (LoanFromUserNotFoundException ex)
+            {
+                return NotFound(new
+                {
+                    ex.Message
                 });
             }
         }
