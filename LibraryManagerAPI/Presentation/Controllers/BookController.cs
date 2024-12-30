@@ -18,7 +18,8 @@ namespace LibraryManagerAPI.Presentation.Controllers
             IGetBookByAuthorUseCase _getBookByAuthorUseCase,
             IGetBookByISBNUseCase _getBookByISBNUseCase,
             IMarkBookAsUnavailableUseCase _markBookAsUnavailableUseCase,
-            IUpdateBookQuantityUseCase _updateBookQuantityUseCase
+            IUpdateBookQuantityUseCase _updateBookQuantityUseCase,
+            IBookExistsUseCase _bookExistsUseCase
         )
         : ControllerBase
     {
@@ -29,6 +30,7 @@ namespace LibraryManagerAPI.Presentation.Controllers
         private readonly IGetBookByISBNUseCase _getBookByISBNUseCase = _getBookByISBNUseCase;
         private readonly IMarkBookAsUnavailableUseCase _markBookAsUnavailableUseCase = _markBookAsUnavailableUseCase;
         private readonly IUpdateBookQuantityUseCase _updateBookQuantityUseCase = _updateBookQuantityUseCase;
+        private readonly IBookExistsUseCase _bookExistsUseCase = _bookExistsUseCase;
 
 
         /// <summary>
@@ -148,9 +150,30 @@ namespace LibraryManagerAPI.Presentation.Controllers
         [Route("ISBN")]
         public async Task<IActionResult> GetBookByISBN([FromQuery] string isbn)
         {
-            var result = await _getBookByISBNUseCase.GetBookByISBN(isbn);
+            try
+            {
 
-            return Ok(result);
+                var result = await _getBookByISBNUseCase.GetBookByISBN(isbn);
+
+                return Ok(result);
+            }
+            catch (CustomValidationFieldsException ex)
+            {
+                // Return the validation error (500)
+                return BadRequest(new
+                {
+                    message = "Validation failed",
+                    errors = ex.Errors
+                });
+            }
+            catch (BookNotAvailableException ex)
+            {
+                // Return resource not found (404 Not Found)
+                return NotFound(new
+                {
+                    ex.Message
+                });
+            }
         }
 
         /// <summary>
@@ -163,24 +186,81 @@ namespace LibraryManagerAPI.Presentation.Controllers
         [Route("markBookAsUnavailable")]
         public async Task<IActionResult> MarkBookAsUnavailable([FromQuery] string isbn)
         {
-            var result = await _markBookAsUnavailableUseCase.MarkBookAsUnavailable(isbn);
+            try
+            {
+                var result = await _markBookAsUnavailableUseCase.MarkBookAsUnavailable(isbn);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (CustomValidationFieldsException ex)
+            {
+                // Return the validation error (500)
+                return BadRequest(new
+                {
+                    message = "Validation failed",
+                    errors = ex.Errors
+                });
+            }
+            catch (BookNotAvailableException ex)
+            {
+                // Return resource not found (404 Not Found)
+                return NotFound(new
+                {
+                    ex.Message
+                });
+            }
         }
 
         /// <summary>
         /// Update book quantity
         /// </summary>
-        /// <param name="updateBookQuantityVO">International Standard Book Number and Quantity</param>
+        /// <param name="updateBookQuantityVO">International Standard Book Number and Quantity and quantity to update</param>
         /// <response code="200">Quantity updated</response>
         /// <response code="500">If an error occurs</response>
         [HttpPatch]
         [Route("updateQuantity")]
         public async Task<IActionResult> UpdateBookQuantity([FromBody]UpdateBookQuantityVO updateBookQuantityVO)
         {
-            var result = await _updateBookQuantityUseCase.UpdateBookQuantity(updateBookQuantityVO);
+            try
+            {
+                var result = await _updateBookQuantityUseCase.UpdateBookQuantity(updateBookQuantityVO);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (BookNotAvailableException ex)
+            {
+                // Return resource not found (404 Not Found)
+                return NotFound(new
+                {
+                    ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Check if book exists in Library
+        /// </summary>
+        /// <param name="isbn">International Standard Book Number and Quantity</param>
+        /// <response code="200">Quantity updated</response>
+        /// <response code="500">If an error occurs</response>
+        [HttpGet]
+        [Route("exists")]
+        public async Task<IActionResult> BookExists([FromQuery] string isbn)
+        {
+            try
+            {
+                var result = await _bookExistsUseCase.BookExists(isbn);
+
+                return Ok(result);
+            }
+            catch (BookNotAvailableException ex)
+            {
+                // Return resource not found (404 Not Found)
+                return NotFound(new
+                {
+                    ex.Message
+                });
+            }
         }
     }
 }

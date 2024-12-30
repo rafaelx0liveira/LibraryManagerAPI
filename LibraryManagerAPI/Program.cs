@@ -17,15 +17,8 @@ var connection = builder.Configuration["MySqlConnection:MySqlConnectionString"];
 // Add services to the container.
 builder.Services.AddDbContext<MySQLContext>(options => options.UseMySql(
     connection,
-    new MySqlServerVersion(new Version(8, 0, 29)),
-    mySqlOptions => mySqlOptions.EnableRetryOnFailure(
-        maxRetryCount: 5,
-        maxRetryDelay: TimeSpan.FromSeconds(5),
-        errorNumbersToAdd: null
-        )
+    new MySqlServerVersion(new Version(8, 0, 29))
     )
-    .EnableSensitiveDataLogging()
-    .LogTo(Console.WriteLine)
 );
 
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();

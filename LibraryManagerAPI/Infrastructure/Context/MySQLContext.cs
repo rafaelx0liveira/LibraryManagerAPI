@@ -1,4 +1,5 @@
 ﻿using LibraryManagerAPI.Domain.Entities;
+using LibraryManagerAPI.Domain.Entities.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagerAPI.Infrastructure.Context
@@ -12,7 +13,6 @@ namespace LibraryManagerAPI.Infrastructure.Context
         public DbSet<User> Users { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Loan> Loans { get; set; }
-        public DbSet<Booking> Bookings { get; set; }
         public DbSet<LoanBook> LoanBooks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -30,6 +30,13 @@ namespace LibraryManagerAPI.Infrastructure.Context
                 .HasOne(lb => lb.Book)
                 .WithMany(b => b.LoanBooks)
                 .HasForeignKey(lb => lb.BookId);
+
+            modelBuilder.Entity<Loan>()
+                .Property(l => l.Status)
+                .HasConversion(
+                    v => v.ToString(), // Enum -> String
+                    v => (LoanStatus)Enum.Parse(typeof(LoanStatus), v) // String -> Enum
+                );
 
             // Populando o banco com HasData
             modelBuilder.Entity<Book>().HasData(

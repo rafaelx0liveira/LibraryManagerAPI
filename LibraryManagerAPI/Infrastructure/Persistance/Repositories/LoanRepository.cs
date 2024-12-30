@@ -2,11 +2,13 @@
 using LibraryManagerAPI.Domain.Entities;
 using LibraryManagerAPI.Domain.Entities.Utils;
 using LibraryManagerAPI.Domain.Exceptions.BookExceptions;
+using LibraryManagerAPI.Domain.Exceptions.LoanExceptions;
 using LibraryManagerAPI.Domain.Exceptions.UserExceptions;
 using LibraryManagerAPI.Domain.ValueObjects.Input;
 using LibraryManagerAPI.Domain.ValueObjects.Output;
 using LibraryManagerAPI.Infrastructure.Context;
 using LibraryManagerAPI.Presentation.Interfaces.Repository.Loan;
+using LibraryManagerAPI.Presentation.Interfaces.Repository.User;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
@@ -18,25 +20,13 @@ namespace LibraryManagerAPI.Infrastructure.Persistance.Repositories
         private readonly MySQLContext _context = context;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<LoanResultVO> RegisterLoan(LoanVO loan)
+        public async Task<LoanResultVO> RegisterLoanAsync(BookResultVO bookResultVO, UserResultVO userResultVO) 
         {
-            User user = _context.Users.Where(x => x.Email == loan.UserEmail).FirstOrDefault() ?? new User();
+            Book book = _mapper.Map<Book>(bookResultVO);
 
-            if (user.Email == null)
+            Loan loan = new Loan
             {
-                throw new UserNotFoundException($"User with email '{loan.UserEmail}' was not found.");
-            }
-
-            Book book = _context.Books.Where(x => x.ISBN == loan.ISBN).FirstOrDefault() ?? new Book();
-
-            if (book.ISBN == null || book.Quantity == 0)
-            {
-                throw new BookNotAvailableException($"The book with ISBN '{loan.ISBN}' is not available.");
-            }
-
-            Loan newLoan = new Loan
-            {
-                UserId = user.Id,
+                UserId = userResultVO.Id,
                 Date = DateTime.Now,
                 ReturnDate = DateTime.Now.AddMonths(1),
                 Status = LoanStatus.Active,
@@ -51,15 +41,15 @@ namespace LibraryManagerAPI.Infrastructure.Persistance.Repositories
 
             book.Quantity--;
 
-            _context.Loans.Add(newLoan);
+            _context.Loans.Add(loan);
             _context.Books.Update(book);
 
             await _context.SaveChangesAsync();
 
-            return new LoanResultVO(user.Name, book.Title, newLoan.ReturnDate.ToString("dd/MM/yyyy"));
+            return new LoanResultVO(userResultVO.Name, book.Title, loan.ReturnDate.ToString("dd/MM/yyyy"));
         }
 
-        public async Task<IEnumerable<LoanFromAUserResultVO>> GetLoanFromAUser(string email)
+        public async Task<IEnumerable<LoanFromAUserResultVO>> GetLoanFromAUserAsync(string email)
         {
             IEnumerable<LoanFromAUserResultVO> loanResults = _context.Loans
                 .Include(ln => ln.User) // Inclui informações do usuário
@@ -78,7 +68,39 @@ namespace LibraryManagerAPI.Infrastructure.Persistance.Repositories
                 .ToList();
 
             return loanResults;
-            
+        }
+
+        public async Task<LoanFromAUserResultVO> ReturnBookAndCloseLoanAsync(UserResultVO userResultVO, string isbn)
+        {
+            User user = _mapper.Map<User>(userResultVO);
+
+            Book? book = await _context.Books.Where(x => x.ISBN == isbn).FirstOrDefaultAsync();
+
+            Loan? loan = await _context.Loans
+                .Include(ln => ln.User)
+                .Include(ln => ln.LoanBooks)
+                    .ThenInclude(lb => lb.Book)
+                .Where(ln => ln.User.Id == user.Id &&
+                        ln.LoanBooks.Any(lb => lb.Book.ISBN == book.ISBN))
+                .FirstOrDefaultAsync();
+
+            book.Quantity++;
+
+            loan.Status = LoanStatus.GiveBack;
+            _context.Loans.Update(loan);
+            _context.Books.Update(book);
+
+            await _context.SaveChangesAsync();
+
+            return new LoanFromAUserResultVO(
+                loan.LoanBooks.First().Book.Title,
+                loan.LoanBooks.First().Book.ISBN,
+                loan.User.Name,
+                loan.User.Email,
+                loan.Date.ToString("dd/MM/yyyy"),
+                loan.ReturnDate.ToString("dd/MM/yyyy"),
+                loan.Status.ToString()
+            );
         }
     }
 }

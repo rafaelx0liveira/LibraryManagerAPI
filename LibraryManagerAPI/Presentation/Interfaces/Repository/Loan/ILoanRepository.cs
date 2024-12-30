@@ -5,7 +5,8 @@ namespace LibraryManagerAPI.Presentation.Interfaces.Repository.Loan
 {
     public interface ILoanRepository
     {
-        Task<LoanResultVO> RegisterLoan(LoanVO loan);
-        Task<IEnumerable<LoanFromAUserResultVO>> GetLoanFromAUser(string email);
+        Task<LoanResultVO> RegisterLoanAsync(BookResultVO bookResultVO, UserResultVO userResultVO);
+        Task<IEnumerable<LoanFromAUserResultVO>> GetLoanFromAUserAsync(string email);
+        Task<LoanFromAUserResultVO> ReturnBookAndCloseLoanAsync(UserResultVO userResultVO, string isbn);
     }
 }
