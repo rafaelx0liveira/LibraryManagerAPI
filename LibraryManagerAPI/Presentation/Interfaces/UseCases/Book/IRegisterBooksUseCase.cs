@@ -1,9 +1,10 @@
 ﻿using LibraryManagerAPI.Domain.ValueObjects.Input;
+using LibraryManagerAPI.Domain.ValueObjects.Output;
 
 namespace LibraryManagerAPI.Presentation.Interfaces.UseCases.Book
 {
     public interface IRegisterBooksUseCase
     {
-        Task<IEnumerable<BookVO>> RegisterBooks(IEnumerable<BookVO> bookVO);
+        Task<IEnumerable<BookResultVO>> RegisterBooks(IEnumerable<BookVO> bookVO);
     }
 }

@@ -15,7 +15,7 @@ namespace LibraryManagerAPI.Application.UseCases.Loan
         {
             ValidatorService.Validate(email);
 
-            IEnumerable<LoanFromAUserResultVO> result = await _loanRepository.GetLoanFromAUser(email);
+            IEnumerable<LoanFromAUserResultVO> result = await _loanRepository.GetLoanFromAUserAsync(email);
 
             if (!result.Any())
             {

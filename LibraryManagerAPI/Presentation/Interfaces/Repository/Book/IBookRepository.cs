@@ -1,15 +1,19 @@
 ﻿using LibraryManagerAPI.Domain.ValueObjects.Input;
+using LibraryManagerAPI.Domain.ValueObjects.Output;
 
 namespace LibraryManagerAPI.Presentation.Interfaces.Repository.Book
 {
     public interface IBookRepository
     {
-        Task<IEnumerable<BookVO>> RegisterBooks(IEnumerable<BookVO> bookVO);
-        Task<IEnumerable<BookVO>> GetAllBooks();
-        Task<IEnumerable<BookVO>> GetBookByTitle(string title);
-        Task<IEnumerable<BookVO>> GetBookByAuthor(string author);
-        Task<BookVO> GetBookByISBN(string isbn);
-        Task<bool> MarkBookAsUnavailable(string isbn);
-        Task<bool> UpdateBookQuantity(UpdateBookQuantityVO updateBookQuantityVO);
+        Task<IEnumerable<BookResultVO>> RegisterBooksAsync(IEnumerable<BookVO> bookVO);
+        Task<IEnumerable<BookResultVO>> GetAllBooksAsync();
+        Task<IEnumerable<BookResultVO>> GetBookByTitleAsync(string title);
+        Task<IEnumerable<BookResultVO>> GetBookByAuthorAsync(string author);
+        Task<BookResultVO> GetBookByISBNAsync(string isbn);
+        Task<bool> MarkBookAsUnavailableAsync(string isbn);
+        Task<bool> UpdateBookQuantityAsync(UpdateBookQuantityVO updateBookQuantityVO);
+        Task<bool> IsBookAvailableAsync(string isbn);
+        Task<bool> IsBookAlreadyLoanedByUserAsync(string userEmail, string isbn);
+        Task<bool> BookExistsAsync(string isbn);
     }
 }

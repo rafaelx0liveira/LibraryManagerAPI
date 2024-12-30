@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LibraryManagerAPI.Domain.Entities;
 using LibraryManagerAPI.Domain.ValueObjects.Input;
+using LibraryManagerAPI.Domain.ValueObjects.Output;
 using LibraryManagerAPI.Infrastructure.Context;
 using LibraryManagerAPI.Presentation.Interfaces.Repository.Book;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ namespace LibraryManagerAPI.Infrastructure.Persistance.Repositories
         private readonly MySQLContext _context = context;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<IEnumerable<BookVO>> RegisterBooks(IEnumerable<BookVO> bookVOs)
+        public async Task<IEnumerable<BookResultVO>> RegisterBooksAsync(IEnumerable<BookVO> bookVOs)
         {
             var booksToUpdate = new List<Book>();
             var booksToAdd = new List<Book>();
@@ -44,36 +45,34 @@ namespace LibraryManagerAPI.Infrastructure.Persistance.Repositories
 
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<IEnumerable<BookVO>>(booksToAdd.Concat(booksToUpdate));
+            return _mapper.Map<IEnumerable<BookResultVO>>(booksToAdd.Concat(booksToUpdate));
         }
 
-        public async Task<IEnumerable<BookVO>> GetAllBooks()
+        public async Task<IEnumerable<BookResultVO>> GetAllBooksAsync()
         {
-            return _mapper.Map<IEnumerable<BookVO>>(await _context.Books.Where(x => x.Quantity > 0).ToListAsync());
+            return _mapper.Map<IEnumerable<BookResultVO>>(await _context.Books.Where(x => x.Quantity > 0).ToListAsync());
         }
 
-        public async Task<IEnumerable<BookVO>> GetBookByTitle(string title)
+        public async Task<IEnumerable<BookResultVO>> GetBookByTitleAsync(string title)
         {
-            return _mapper.Map<IEnumerable<BookVO>>(await _context.Books.Where(x => x.Title == title && x.Quantity > 0).ToListAsync());
+            return _mapper.Map<IEnumerable<BookResultVO>>(await _context.Books.AsNoTracking().Where(x => x.Title == title && x.Quantity > 0).ToListAsync());
         }
 
-        public async Task<IEnumerable<BookVO>> GetBookByAuthor(string author)
+        public async Task<IEnumerable<BookResultVO>> GetBookByAuthorAsync(string author)
         {
-            return _mapper.Map<IEnumerable<BookVO>>(await _context.Books.Where(x => x.Author == author && x.Quantity > 0).ToListAsync());
+            return _mapper.Map<IEnumerable<BookResultVO>>(await _context.Books.AsNoTracking().Where(x => x.Author == author && x.Quantity > 0).ToListAsync());
         }
 
-        public async Task<BookVO> GetBookByISBN(string isbn)
+        public async Task<BookResultVO> GetBookByISBNAsync(string isbn)
         {
-            return _mapper.Map<BookVO>(await _context.Books.FirstOrDefaultAsync(x => x.ISBN == isbn && x.Quantity > 0));
+            return _mapper.Map<BookResultVO>(await _context.Books.AsNoTracking().FirstOrDefaultAsync(x => x.ISBN == isbn && x.Quantity > 0));
         }
 
-        public async Task<bool> MarkBookAsUnavailable(string isbn)
+        public async Task<bool> MarkBookAsUnavailableAsync(string isbn)
         {
             try
             {
                 Book book = await _context.Books.Where(x => x.ISBN == isbn).FirstOrDefaultAsync() ?? new Book();
-
-                if (book.ISBN == null) return false;
 
                 book.Quantity = 0;
 
@@ -83,19 +82,17 @@ namespace LibraryManagerAPI.Infrastructure.Persistance.Repositories
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }   
         }
 
-        public async Task<bool> UpdateBookQuantity(UpdateBookQuantityVO updateBookQuantityVO)
+        public async Task<bool> UpdateBookQuantityAsync(UpdateBookQuantityVO updateBookQuantityVO)
         {
             try
             {
                 Book book = await _context.Books.Where(x => x.ISBN == updateBookQuantityVO.ISBN).FirstOrDefaultAsync() ?? new Book();
-
-                if (book.ISBN == null) return false;
 
                 book.Quantity += updateBookQuantityVO.Quantity;
 
@@ -109,6 +106,24 @@ namespace LibraryManagerAPI.Infrastructure.Persistance.Repositories
             {
                 return false;
             }
+        }
+
+        public async Task<bool> IsBookAvailableAsync(string isbn)
+        {
+            return await _context.Books.Where(x => x.ISBN == isbn && x.Quantity > 0).AnyAsync();
+        }
+
+        public async Task<bool> BookExistsAsync(string isbn)
+        {
+            return await _context.Books.AnyAsync(x => x.ISBN == isbn);
+        }
+
+        public async Task<bool> IsBookAlreadyLoanedByUserAsync(string userEmail, string isbn)
+        {
+            return await _context.Loans
+                .Include(l => l.LoanBooks)
+                .Include(l => l.User)
+                .AnyAsync(l => l.User.Email == userEmail && l.LoanBooks.Any(lb => lb.Book.ISBN == isbn));
         }
     }
 }

@@ -15,7 +15,6 @@ namespace LibraryManagerAPI.Domain.Entities
         public string? Email { get; set; }
 
         public virtual ICollection<Loan> Loans { get; set; } // Propriedade de navegação
-        public virtual ICollection<Booking> Bookings { get; set; } // Propriedade de navegação
     }
 
 }
