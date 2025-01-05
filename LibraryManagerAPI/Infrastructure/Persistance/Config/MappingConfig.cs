@@ -11,8 +11,13 @@ namespace LibraryManagerAPI.Infrastructure.Persistance.Config
         {
             var mappingConfig = new MapperConfiguration(config =>
             {
+                config.CreateMap<BookVO, Book>().ReverseMap();
                 config.CreateMap<BookResultVO, Book>().ReverseMap();
+
                 config.CreateMap<LoanVO, Loan>().ReverseMap();
+                config.CreateMap<LoanResultVO, Loan>().ReverseMap();
+
+                config.CreateMap<UserVO, User>().ReverseMap();
                 config.CreateMap<UserResultVO, User>().ReverseMap();
             });
 
